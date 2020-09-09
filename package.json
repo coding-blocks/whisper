@@ -1,5 +1,5 @@
 {
-  "name": "whisper",
+  "name": "whisperer",
   "version": "1.0.0",
   "description": "Event sourcing library which makes use of rabbitmq.",
   "main": "index.js",
