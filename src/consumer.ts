@@ -1,4 +1,4 @@
-import * as AMQP from 'amqplib/index';
+import * as AMQP from 'amqplib';
 import { Connection, Channel, ConsumeMessage } from 'amqplib';
 
 export default class Consumer {
@@ -20,7 +20,7 @@ export default class Consumer {
   }
 
   async initialize(
-    onMessage: (msg: ConsumeMessage) => Promise<void>
+    onMessage: (msg: ConsumeMessage) => any
   ) {
     this.conn = await AMQP.connect(this.connectionString);
     this.channel = await this.conn.createChannel();
@@ -34,5 +34,7 @@ export default class Consumer {
     await Promise.all(this.keys.map(key => this.channel.bindQueue(q.queue, this.exchangeName, key)))
 
     this.channel.consume(q.queue, onMessage)
+
+    return this;
   }
 }

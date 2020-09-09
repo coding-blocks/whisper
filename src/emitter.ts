@@ -1,4 +1,4 @@
-import * as AMQP from 'amqplib/index';
+import * as AMQP from 'amqplib';
 import { Connection, Channel } from 'amqplib';
 
 export default class Emitter {
@@ -25,11 +25,11 @@ export default class Emitter {
     return this;
   }
 
-  emitMessage(topics: Array<string>, messageBuffer: Object): boolean {
+  emitMessage(topic: string, messageBuffer: Object): boolean {
     return this.channel.publish(
       this.exchangeName, 
-      topics.join('.'), 
-      Buffer.from(messageBuffer)
+      topic, 
+      Buffer.from(JSON.stringify(messageBuffer))
     );
   }
 }
