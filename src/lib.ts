@@ -10,6 +10,7 @@ export interface ConnectionParams {
 export default class Whisperer {
   client: any; // stomp-client isn't typescript safe
   _destinationPrefix: string = '/topic/';
+  _isInitialized: boolean = false;
 
   constructor(
     connectionParams: ConnectionParams
@@ -26,7 +27,8 @@ export default class Whisperer {
     const sessionId = await (new Promise(
       (resolve, reject) => this.client.connect(resolve, reject))
     );
-
+    
+    this._isInitialized = true;
     return this;
   }
 
@@ -34,6 +36,9 @@ export default class Whisperer {
     destination: string,
     onMessage: (body: string, headers?: Object) => any
   ) {
+    if (!this._isInitialized) {
+      throw new Error('Client not initialized');
+    }
     this.client.subscribe(this._destinationPrefix + destination, onMessage);
   }
 
@@ -41,6 +46,9 @@ export default class Whisperer {
     destination: string,
     message: string
   ) {
+    if (!this._isInitialized) {
+      throw new Error('Client not initialized');
+    }
     this.client.publish(this._destinationPrefix + destination, message);
   }
 }
