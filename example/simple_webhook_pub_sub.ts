@@ -2,47 +2,54 @@ import Whisperer, { ConnectionParams } from "../src/index";
 
 (async () => {
   const listener1 = new Whisperer(<ConnectionParams>{
-    host: '127.0.0.1',
+    host: '172.17.0.2',
     port: 15674,
-    username: 'guest',
-    password: 'guest'
+    username: 'rabbitmq',
+    password: 'rabbitmq'
   });
   const listener2 = new Whisperer(<ConnectionParams>{
-    host: '127.0.0.1',
+    host: '172.17.0.2',
     port: 15674,
-    username: 'guest',
-    password: 'guest'
+    username: 'rabbitmq',
+    password: 'rabbitmq'
   });
   const emitter1 = new Whisperer(<ConnectionParams>{
-    host: '127.0.0.1',
+    host: '172.17.0.2',
     port: 15674,
-    username: 'guest',
-    password: 'guest'
+    username: 'rabbitmq',
+    password: 'rabbitmq'
   });
+ 
+ 
+    await listener1.init();
+    await listener2.init();
+    await emitter1.init();
 
-  setTimeout(() => {
+
+
     listener1.on('oneauth_user.created', (msg) => {
       console.log("listener 1: <created>", msg)
     })
     listener1.on('oneauth_user.updated', (msg) => {
       console.log("listener 1: <updated>", msg)
     })
-    listener1.on('oneauth_user.created', (msg) => {
+    listener2.on('oneauth_user.created', (msg) => {
       console.log("listener 2: <created>", msg)
     })
 
-    setTimeout(() => {
-      emitter1.emit('oneauth_user.created', {
-        body: {
-          data: 'some create message'
-        }
-      })
-      emitter1.emit('oneauth_user.updated', {
-        body: {
-          data: 'some create message'
-        }
-      })
-    }, 2000)
-  }, 2000)
+
+    emitter1.emit('oneauth_user.created', {
+      body: {
+        data: 'some create message'
+      },
+      headers: {
+        persistent: 'true'
+      }
+    })
+    emitter1.emit('oneauth_user.updated', {
+      body: {
+        data: 'some create message'
+      }
+    })
 
 })()

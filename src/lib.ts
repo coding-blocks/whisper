@@ -27,6 +27,8 @@ export default class Whisperer {
   client: Client;
   _destinationPrefix: string = '/topic/';
 
+  init: () => Promise<void>;
+
   constructor(
     connectionParams: ConnectionParams
   ) {
@@ -35,14 +37,22 @@ export default class Whisperer {
       connectHeaders: {
         login: connectionParams.username,
         passcode: connectionParams.password
-      }
+      },
+      // debug: console.log
     })
 
-    this.client.onConnect = this._onConnect;
+    // this.client.onConnect = this._onConnect;
 
     this.client.onStompError = this._onError
+    
+    this.init = () => new Promise((resolve, reject) => {
+      console.log("Calling activate: ", connectionParams)
+      this.client.activate();
 
-    this.client.activate();
+      this.client.onConnect = (frame) => { this._onConnect(frame); resolve(); }
+      this.client.onStompError = reject;
+    })
+    
   }
 
   async _onConnect(frame: Frame) {
@@ -64,7 +74,12 @@ export default class Whisperer {
     if (!this.isInitialized) {
       throw new Error('Client not initialized');
     }
-    this.client.subscribe(this._destinationPrefix + destination, getCallbackFunction(onMessage));
+    this.client.subscribe(this._destinationPrefix + destination, getCallbackFunction(onMessage), {
+        durable: 'true',  // to make sure we don't lose messages if we or broker is offline
+        'auto-delete': 'false', // ensures the queue isn't deleted if no active subscribers (we can set this false)
+        'prefetch-count': '1', // ensures only message from this queue goes to a subscriber at a time
+        ack: 'client-individual', // don't consider messages delivered unless we explicility call .ack() for every message;
+    });
   }
 
   emit(
