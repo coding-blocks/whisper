@@ -1,8 +1,9 @@
 {
   "name": "@coding-blocks/whisperer",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Event sourcing library which makes use of rabbitmq.",
   "main": "dist/index.js",
+  "files": ["dist/*"],
   "types": "dist/index.d.ts",
   "scripts": {
     "prepublish": "yarn build",
