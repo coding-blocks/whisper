@@ -1,9 +1,11 @@
 {
-  "name": "whisperer",
-  "version": "1.0.0",
+  "name": "@coding-blocks/whisperer",
+  "version": "0.0.1",
   "description": "Event sourcing library which makes use of rabbitmq.",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
+    "prepublish": "yarn build",
     "build": "tsc",
     "example": "ts-node ./example/simple_webhook_pub_sub.ts"
   },
@@ -11,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@stomp/stompjs": "^5.4.4",
+    "@types/ws": "^7.2.6",
     "ws": "^7.3.1"
   },
   "devDependencies": {
