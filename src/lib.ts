@@ -1,4 +1,12 @@
-import * as Stomp from 'stomp-client';
+import { 
+  Client, 
+  messageCallbackType,
+  Frame,
+  Message
+} from '@stomp/stompjs'
+import * as WebSocket from 'ws';
+
+Object.assign(global, { WebSocket });
 
 export interface ConnectionParams {
   host: string,
@@ -8,35 +16,44 @@ export interface ConnectionParams {
 }
 
 export default class Whisperer {
-  client: any; // stomp-client isn't typescript safe
+  client: Client;
   _destinationPrefix: string = '/topic/';
-  _isInitialized: boolean = false;
 
   constructor(
     connectionParams: ConnectionParams
   ) {
-    this.client = new Stomp(
-      connectionParams.host,
-      connectionParams.port,
-      connectionParams.username,
-      connectionParams.password
-    );
+    this.client = new Client({
+      brokerURL: `ws://${connectionParams.host}:${connectionParams.port}/ws`,
+      connectHeaders: {
+        login: connectionParams.username,
+        passcode: connectionParams.password
+      }
+    })
+
+    this.client.onConnect = this._onConnect;
+
+    this.client.onStompError = this._onError
+
+    this.client.activate();
   }
 
-  async initialize() {
-    const sessionId = await (new Promise(
-      (resolve, reject) => this.client.connect(resolve, reject))
-    );
-    
-    this._isInitialized = true;
-    return this;
+  async _onConnect(frame: Frame) {
+    // @Overridable
+  }
+  
+  async _onError(frame: Frame) {
+    // @Overridable
+  }
+
+  get isInitialized() {
+    return this.client.active;
   }
 
   on(
     destination: string,
-    onMessage: (body: string, headers?: Object) => any
+    onMessage: messageCallbackType
   ) {
-    if (!this._isInitialized) {
+    if (!this.isInitialized) {
       throw new Error('Client not initialized');
     }
     this.client.subscribe(this._destinationPrefix + destination, onMessage);
@@ -44,11 +61,15 @@ export default class Whisperer {
 
   emit(
     destination: string,
-    message: string
+    message: Message
   ) {
-    if (!this._isInitialized) {
+    if (!this.isInitialized) {
       throw new Error('Client not initialized');
     }
-    this.client.publish(this._destinationPrefix + destination, message);
+    this.client.publish({
+      destination: this._destinationPrefix + destination, 
+      body: message.body,
+      headers: message.headers
+    });
   }
 }
