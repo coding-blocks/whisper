@@ -1,6 +1,6 @@
 {
   "name": "@coding-blocks/whisperer",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Event sourcing library which makes use of rabbitmq.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
