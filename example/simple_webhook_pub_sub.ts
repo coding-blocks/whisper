@@ -33,10 +33,14 @@ import Whisperer, { ConnectionParams } from "../src/index";
 
     setTimeout(() => {
       emitter1.emit('oneauth_user.created', {
-        body: 'some create message'
+        body: {
+          data: 'some create message'
+        }
       })
       emitter1.emit('oneauth_user.updated', {
-        body: 'some update message'
+        body: {
+          data: 'some create message'
+        }
       })
     }, 2000)
   }, 2000)

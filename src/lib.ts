@@ -1,11 +1,11 @@
 import { 
   Client, 
   StompHeaders,
-  messageCallbackType,
   Frame,
   Message as StompMessage
 } from '@stomp/stompjs'
 import * as WebSocket from 'ws';
+import { getCallbackFunction } from './utils';
 
 Object.assign(global, { WebSocket });
 
@@ -17,9 +17,11 @@ export interface ConnectionParams {
 }
 
 export interface Message {
-  body: string,
+  body: Object,
   headers?: StompHeaders
 }
+
+export type onMessageCallbackType = (msg: Object, frame?: StompMessage) => void
 
 export default class Whisperer {
   client: Client;
@@ -57,12 +59,12 @@ export default class Whisperer {
 
   on(
     destination: string,
-    onMessage: messageCallbackType
+    onMessage: onMessageCallbackType
   ) {
     if (!this.isInitialized) {
       throw new Error('Client not initialized');
     }
-    this.client.subscribe(this._destinationPrefix + destination, onMessage);
+    this.client.subscribe(this._destinationPrefix + destination, getCallbackFunction(onMessage));
   }
 
   emit(
@@ -74,7 +76,7 @@ export default class Whisperer {
     }
     this.client.publish({
       destination: this._destinationPrefix + destination, 
-      body: message.body,
+      body: JSON.stringify(message.body),
       headers: message.headers
     });
   }
