@@ -1,8 +1,9 @@
 import { 
   Client, 
+  StompHeaders,
   messageCallbackType,
   Frame,
-  Message
+  Message as StompMessage
 } from '@stomp/stompjs'
 import * as WebSocket from 'ws';
 
@@ -13,6 +14,11 @@ export interface ConnectionParams {
   port: number,
   username: string,
   password: string
+}
+
+export interface Message {
+  body: string,
+  headers?: StompHeaders
 }
 
 export default class Whisperer {
