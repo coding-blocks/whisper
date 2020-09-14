@@ -5,6 +5,7 @@ import {
   Message as StompMessage,
   debugFnType
 } from '@stomp/stompjs'
+
 import * as WebSocket from 'ws';
 import { getCallbackFunction } from './utils';
 
@@ -20,7 +21,7 @@ export interface ConnectionParams {
 }
 
 export interface Message {
-  body: Object,
+  body: any,
   headers?: StompHeaders
 }
 
@@ -52,7 +53,7 @@ export default class Whisperer {
         passcode: connectionParams.password,
         host: connectionParams.vhost || 'whisperer'
       },
-      debug: connectionParams.debug
+      debug: connectionParams.debug || (() => {})
     })
 
     this.client.onStompError = this._onError
