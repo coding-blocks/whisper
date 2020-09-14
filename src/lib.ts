@@ -57,6 +57,7 @@ export default class Whisperer {
 
       this.client.onConnect = frame => { this._onConnect(frame); resolve(); }
       this.client.onStompError = frame => { this._onError(frame); reject(); }
+      this.client.onWebSocketError = reject;
     })
     
   }
