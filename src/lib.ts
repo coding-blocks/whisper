@@ -2,7 +2,8 @@ import {
   Client, 
   StompHeaders,
   Frame,
-  Message as StompMessage
+  Message as StompMessage,
+  debugFnType
 } from '@stomp/stompjs'
 import * as WebSocket from 'ws';
 import { getCallbackFunction } from './utils';
@@ -13,7 +14,9 @@ export interface ConnectionParams {
   host: string,
   port: number,
   username: string,
-  password: string
+  password: string,
+  vhost?: string,
+  debug?: debugFnType
 }
 
 export interface Message {
@@ -36,9 +39,10 @@ export default class Whisperer {
       brokerURL: `ws://${connectionParams.host}:${connectionParams.port}/ws`,
       connectHeaders: {
         login: connectionParams.username,
-        passcode: connectionParams.password
+        passcode: connectionParams.password,
+        host: connectionParams.vhost || 'whisperer'
       },
-      // debug: console.log
+      debug: connectionParams.debug
     })
 
     // this.client.onConnect = this._onConnect;
